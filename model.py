@@ -7,7 +7,10 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import pandas as pd
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.model_selection import train_test_split
 
+#######################################################################
 #Read dataset
 df_train = pd.read_csv("dataset/train.csv", skiprows=1, header=None, names=["Index", "Image_Path", "Label"])
 df_train = df_train.drop(columns=["Index"])
@@ -44,15 +47,15 @@ class ImageDataset(Dataset):
         return image, label
     
 # Dataset objects
-train_dataset = ImageDataset(df_train, root_dir="./", transform=transform)
-test_dataset = ImageDataset(df_test, root_dir="./", transform=transform)
+train_dataset = ImageDataset(df_train, root_dir="dataset/", transform=transform)
+test_dataset = ImageDataset(df_test, root_dir="dataset/", transform=transform)
 
 # DataLoaders for batching
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 class AIImageClassifier(nn.Module):
-    # Layers
+    # Layers definition
     def __init__(self):
         super(AIImageClassifier, self).__init__()
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1)
@@ -76,6 +79,11 @@ model = AIImageClassifier()
 criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
+batch_size = 64
+# train_dataset = TensorDataset(image, label)
+# train_loader = DataLoader(train_data, batch_size = batch_size, shuffle=True)
+
+#######################################################################
 # Training
 num_epochs = 10
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -86,13 +94,12 @@ for epoch in range(num_epochs):
     
     running_loss = 0.0
 
-    for images, labels in train_loader:
-        print("Running")
-        images, labels = images.to(device), labels.float().to(device)
+    for image, label in train_loader:
+        image, label = image.to(device), label.float().to(device)
 
         optimizer.zero_grad()
-        outputs = model(images).squeeze()  # Squeeze to match label shape
-        loss = criterion(outputs, labels)
+        outputs = model(image).squeeze()  # Squeeze to match label shape
+        loss = criterion(outputs, label)
         loss.backward()
         optimizer.step()
 
@@ -101,6 +108,7 @@ for epoch in range(num_epochs):
     print(f"Epoch {epoch+1}, Loss: {running_loss/len(train_loader)}")
 
 print("Training complete!")
+
 
 # Test model
 model.eval()
@@ -117,6 +125,7 @@ with torch.no_grad():
 
 print(f"Accuracy: {100 * correct / total:.2f}%")
 
+#######################################################################
 # Define new images
 def predict_image(image_path, model):
     model.eval()
