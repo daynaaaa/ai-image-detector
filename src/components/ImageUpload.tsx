@@ -22,7 +22,7 @@ export default function ImageUpload() {
           {image ? (
             <img src={image} alt="Preview" className="max-h-full rounded-md" />
           ) : (
-            <p className="text-gray-600">Drag & drop or click to upload</p>
+            <p className="text-gray-600">Drag & drop or click to upload an image to determine if it is AI-Generated or not</p>
           )}
         </div>
         <button 
