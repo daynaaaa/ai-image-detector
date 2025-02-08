@@ -5,11 +5,12 @@ import { useDropzone } from "react-dropzone";
 export default function ImageUpload() {
     const [image, setImage] = useState<string | null>(null);
 
-    const { getRootProps, getInputProps } = useDropzone({
+    const { getRootProps, getInputProps, open } = useDropzone({
         accept: { "image/*": [".png", ".jpg", ".jpeg", ".webp"] },
         onDrop: (acceptedFiles) => {
         setImage(URL.createObjectURL(acceptedFiles[0]));
         },
+        noClick: true,
     });
     return (
         <div className="flex flex-col items-center gap-4 p-6 bg-gray-100 rounded-xl shadow-md">
@@ -24,9 +25,20 @@ export default function ImageUpload() {
             <p className="text-gray-600">Drag & drop or click to upload</p>
           )}
         </div>
-        <button className="px-4 py-2 bg-blue-500 text-white rounded-md shadow">
-          Analyze Image
+        <button 
+            onClick={open}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md shadow">
+          Upload Image
         </button>
+
+        {image && (
+        <button
+          onClick={() => setImage(null)} 
+          className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md shadow"
+        >
+          Remove Image
+        </button>
+        )}
       </div>
     )
 }
