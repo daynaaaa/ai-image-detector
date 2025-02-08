@@ -116,12 +116,12 @@ correct = 0
 total = 0
 
 with torch.no_grad():
-    for images, labels in test_loader:
-        images, labels = images.to(device), labels.float().to(device)
-        outputs = model(images).squeeze()
+    for image, label in test_loader:
+        image, label = image.to(device), label.float().to(device)
+        outputs = model(image).squeeze()
         predicted = (outputs > 0.5).float()
-        correct += (predicted == labels).sum().item()
-        total += labels.size(0)
+        correct += (predicted == label).sum().item()
+        total += label.size(0)
 
 print(f"Accuracy: {100 * correct / total:.2f}%")
 
